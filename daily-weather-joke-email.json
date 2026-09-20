@@ -1,0 +1,290 @@
+{
+  "name": "Month 3 Daily Weather & Joke Email",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://official-joke-api.appspot.com/random_joke",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -112,
+        16
+      ],
+      "id": "3a426e20-387e-4292-8a38-1079b8c4058c",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "url": "https://api.weatherbit.io/v2.0/current",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lat",
+              "value": "30.15"
+            },
+            {
+              "name": "lon",
+              "value": "72.68"
+            },
+            {
+              "name": "key",
+              "value": "YOUR_WEATHERBIT_API_KEY"
+            },
+            {
+              "name": "units",
+              "value": "M"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        -112,
+        -176
+      ],
+      "id": "b65b9f3a-9eb3-467a-8358-312c2cbb60a1",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "568310b0-a13c-4acf-8011-45912eaf7412",
+              "name": "data[0].country_code",
+              "value": "=Pakistan",
+              "type": "string"
+            },
+            {
+              "id": "707c5446-8394-4426-bc85-6a6bb4dd1660",
+              "name": "data[0].city_name",
+              "value": "=Burewala",
+              "type": "string"
+            },
+            {
+              "id": "db282d53-2417-434e-a11e-203bcd8fb8c3",
+              "name": "data[0].ob_time",
+              "value": "={{ $json.data[0].ob_time }}",
+              "type": "string"
+            },
+            {
+              "id": "d0290460-2e21-434a-b842-34ef4cbf9664",
+              "name": "data[0].temp",
+              "value": "={{ $json.data[0].temp }}",
+              "type": "number"
+            },
+            {
+              "id": "cdb11c25-38d2-4045-a43a-26e7d6b7b37e",
+              "name": "data[0].app_temp",
+              "value": "={{ $json.data[0].app_temp }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        80,
+        -176
+      ],
+      "id": "f164c179-ed43-4b6a-801e-f0fc15c7c2d2",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ef375310-0d4a-4832-8e16-8d8abdbe345b",
+              "name": "Joke Type",
+              "value": "={{ $json.type }}",
+              "type": "string"
+            },
+            {
+              "id": "12ea5194-1b20-44f0-817a-6880697fd052",
+              "name": "Joke",
+              "value": "={{ $json.setup }}",
+              "type": "string"
+            },
+            {
+              "id": "93cb952a-19fd-4623-9f03-c9bb3bb88b48",
+              "name": "Punchline",
+              "value": "={{ $json.punchline }}",
+              "type": "string"
+            },
+            {
+              "id": "27b19a3f-5e3e-4dbf-877e-4d9826bfb41d",
+              "name": "User id",
+              "value": "={{ $json.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        80,
+        16
+      ],
+      "id": "f33a53e6-5c4b-4423-98a7-4a771e9581a2",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "sendTo": "=your-email@example.com",
+        "subject": "=Daily Weather & Updates - {{ $now.format('dd-MM-yyyy') }}",
+        "emailType": "text",
+        "message": "=Assalam-o-Alaikum,\n\nAaj ka Mausam Update:\n- City: {{ $('Edit Fields').item.json.data[0].city_name }}\n- Country: {{ $('Edit Fields').item.json.data[0].country_code }}\n- Temperature: {{ $('Edit Fields').item.json.data[0].temp }}°C\n- Mahsos Temperature: {{ $('Edit Fields').item.json.data[0].app_temp }}°C\n- Mausam ki reading ka waqt: {{ $('Edit Fields').item.json.data[0].ob_time }} \n\nor \nYah ap k leyah aj ka joke hy \n- Joke Type:{{ $json['Joke Type'] }}\n- Joke :{{ $json.Joke }}\n- Punchline {{ $json.Punchline }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        560,
+        -80
+      ],
+      "id": "52055dc6-1133-474c-a082-281c87e45a9b",
+      "name": "Send a message",
+      "webhookId": "6a11886f-f49a-4ced-8b33-3af4ae627f23"
+     
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        304,
+        -80
+      ],
+      "id": "29025262-06d3-47f1-a9fe-508d21f4f615",
+      "name": "Merge",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -432,
+        -96
+      ],
+      "id": "6826a316-de53-4ca5-9d1f-80b3645a7932",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "Asia/Karachi",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "39ded602-cfd9-4716-9ed2-266040a7b95d",
+ 
+  "nodeGroups": [],
+  "id": "59Ox3e6DqTkowPZ9",
+  "tags": []
+}
